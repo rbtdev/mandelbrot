@@ -11,6 +11,7 @@ function Chaos(canvasId) {
     this.iterationDiv = document.getElementById('iterations');
     this.escapeDiv = document.getElementById('escape');
     this.colorDiv = document.getElementById('color');
+    this.speedDiv = document.getElementById('speed');
     this.ctx = canvas.getContext("2d");
     this.pointSize = 1;
     this.height = this.canvas.height
@@ -19,11 +20,11 @@ function Chaos(canvasId) {
     this.drag = document.getElementById('drag');
 
 
-    this.scaleX = function (x) { 
-        return (x * this.scaledWidth / this.width) + this.rect.left; 
+    this.scaleX = function (x) {
+        return (x * this.scaledWidth / this.width) + this.rect.left;
     }.bind(this);
 
-    this.scaleY = function (y) { 
+    this.scaleY = function (y) {
         return this.rect.top - (y * this.scaledHeight / this.height);
     }.bind(this);
 
@@ -32,7 +33,7 @@ function Chaos(canvasId) {
         top: 1.5,
         left: -2,
         bottom: -1.5,
-        right:1
+        right: 1
     }
     this.setScale();
 
@@ -67,20 +68,20 @@ function Chaos(canvasId) {
             _this.start();
         }
     };
-    
+
 }
 
 Chaos.prototype.setScale = function () {
     this.scaledWidth = Math.abs(this.rect.left - this.rect.right);
     this.scaledHeight = Math.abs(this.rect.top - this.rect.bottom);
     this.rectDiv.innerText = '';
-    this.rectDiv.innerText = JSON.stringify(this.rect, null, 2).replace(/[{"}]/g,'') + '\n' + 
+    this.rectDiv.innerText = JSON.stringify(this.rect, null, 2).replace(/[{"}]/g, '') + '\n' +
         'width: ' + this.scaledWidth + '\n' + 'height: ' + this.scaledHeight;
 }
 
 Chaos.prototype.color = function (c) {
     var fill = '000000';
-    var color = (Math.floor(Math.abs(((this.maxColors/2) - Math.pow(c,this.colorScheme))))).toString(16);
+    var color = (Math.floor(Math.abs(((this.maxColors / 2) - Math.pow(c, this.colorScheme))))).toString(16);
 
     var hex = '#' + (fill + color).slice(-6);
 
@@ -112,29 +113,34 @@ Chaos.prototype.run = function () {
     this.maxIterations = parseFloat(this.iterationDiv.value);
     this.escape = parseFloat(this.escapeDiv.value);
     this.colorScheme = parseFloat(this.colorDiv.value);
+    this.speed = parseInt(this.speedDiv.value, 10);
     var Px = 0;
+    var escape = this.escape;
     this.req = requestAnimationFrame(compute.bind(this, Px));
+
     function compute(Px) {
-        var escape = 128
-        var x0 = this.scaleX(Px);
-        for (var Py = 0; Py < this.height; Py++) {
-            var y0 = this.scaleY(Py);
-            var x = 0
-            var y = 0
-            var iteration = 0
+        for (var col = 0; col < this.speed && Px < this.width; col++) {
+            var x0 = this.scaleX(Px);
 
-            while (x * x + y * y <= escape && iteration < this.maxIterations) {
-                var xtemp = x * x - y * y + x0;
-                var y = 2 * x * y + y0;
-                x = xtemp
-                iteration = iteration + 1
+            for (var Py = 0; Py < this.height; Py++) {
+                var y0 = this.scaleY(Py);
+                var x = 0
+                var y = 0
+                var iteration = 0
+
+                while (x * x + y * y <= escape && iteration < this.maxIterations) {
+                    var xtemp = x * x - y * y + x0;
+                    var y = 2 * x * y + y0;
+                    x = xtemp
+                    iteration = iteration + 1
+                }
+
+                var color = this.color(iteration)
+                if (iteration === this.maxIterations) color = this.color(0);
+                this.plot(Px, Py, color)
             }
-
-            var color = this.color(iteration)
-            if (iteration === this.maxIterations) color = this.color(0);
-            this.plot(Px, Py, color)
+            Px++;
         }
-        Px++;
         if (Px < this.width) this.req = requestAnimationFrame(compute.bind(this, Px));
         else this.stop();
     }
