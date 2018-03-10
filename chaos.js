@@ -138,12 +138,28 @@ Chaos.prototype.mouseZoom = function (e) {
     this.stop();
     var xZoom = 1 + e.wheelDelta/this.width;
     var yZoom = 1 + e.wheelDelta/this.height;
-    this.rect.top  = this.scaledCenterY + this.scaledHeight*yZoom/2
-    this.rect.bottom = this.scaledCenterY - this.scaledHeight*yZoom/2
-    this.rect.left = this.scaledCenterX - this.scaledWidth*xZoom/2
-    this.rect.right = this.scaledCenterX + this.scaledWidth*xZoom/2
+    var scaledX = this.scaleX(e.clientX);
+    var scaledY = this.scaleY(e.clientY);
+
+    this.rect.top  = scaledY + this.scaledHeight*yZoom/2
+    this.rect.bottom = scaledY - this.scaledHeight*yZoom/2
+    this.rect.left = scaledX - this.scaledWidth*xZoom/2
+    this.rect.right = scaledX + this.scaledWidth*xZoom/2
+
 
     this.setScale();
+
+    var moveX = this.scaledCenterX - this.scaleX(e.clientX);
+    var moveY = this.scaledCenterY - this.scaleY(e.clientY);
+    this.rect.top += moveY;
+    this.rect.bottom += moveY;
+    this.rect.left += moveX;
+    this.rect.right += moveX;
+    this.setScale();
+
+    
+
+
 
     this.start();
     return false;
