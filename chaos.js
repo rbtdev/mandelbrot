@@ -10,7 +10,9 @@ function Chaos(canvasId) {
     this.rectDiv = document.getElementById('rect');
     this.iterationDiv = document.getElementById('iterations');
     this.escapeDiv = document.getElementById('escape');
-    this.colorDiv = document.getElementById('color');
+    this.colorShiftDiv = document.getElementById('color-shift');
+    this.colorOffsetDiv = document.getElementById('color-offset')
+    this.colorSpreadDiv = document.getElementById('color-spread')
     this.speedDiv = document.getElementById('speed');
     this.ctx = canvas.getContext("2d");
     this.pointSize = 1;
@@ -81,7 +83,7 @@ Chaos.prototype.setScale = function () {
 
 Chaos.prototype.color = function (c) {
     var fill = '000000';
-    var color = (Math.floor(Math.abs(((this.maxColors / 2) - Math.pow(c, this.colorScheme))))).toString(16);
+    var color = (((c << this.colorShift) * this.colorSpread) + this.colorOffset).toString(16);
 
     var hex = '#' + (fill + color).slice(-6);
 
@@ -112,7 +114,9 @@ Chaos.prototype.run = function () {
     this.ctx.clearRect(0, 0, this.width, this.height);
     this.maxIterations = parseFloat(this.iterationDiv.value);
     this.escape = parseFloat(this.escapeDiv.value);
-    this.colorScheme = parseFloat(this.colorDiv.value);
+    this.colorShift = parseInt(this.colorShiftDiv.value);
+    this.colorOffset = parseInt(this.colorOffsetDiv.value);
+    this.colorSpread = parseInt(this.colorSpreadDiv.value);
     this.speed = parseInt(this.speedDiv.value, 10);
     var Px = 0;
     var escape = this.escape;
