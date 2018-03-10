@@ -94,7 +94,8 @@ Chaos.prototype.stop = function () {
 }
 
 Chaos.prototype.start = function () {
-
+    document.onmouseup = null;
+    document.onmousemove = null;
     this.run();
     this.startButton.textContent = 'Stop';
     this.startButton.onclick = this.stop.bind(this);
