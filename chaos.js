@@ -5,7 +5,10 @@ function init(canvasId) {
 }
 
 function Chaos(canvasId) {
+
     this.canvas = document.getElementById(canvasId);
+    this.canvas.height = window.innerHeight - 2;
+    this.canvas.width = this.canvas.height;
     this.startButton = document.getElementById('start');
     this.rectDiv = document.getElementById('rect');
     this.iterationDiv = document.getElementById('iterations');
@@ -38,6 +41,14 @@ function Chaos(canvasId) {
         return (x * this.scaledWidth / this.width) + this.rect.left;
     }.bind(this);
 
+    this.unScaleX = function (x) {
+        return ((x - this.rect.left) / (this.scaledWidth/this.width));
+    }
+
+    this.unScaleY = function (y) {
+        return ((this.rect.top + y) / (this.scaledHeight/this.height));
+    }
+
     this.scaleY = function (y) {
         return this.rect.top - (y * this.scaledHeight / this.height);
     }.bind(this);
@@ -56,15 +67,16 @@ function Chaos(canvasId) {
 
         var clickY;
         var clickX;
-        _this.drag.style.visibility = 'visible';
         var clickY = e.clientY;
         var clickX = e.clientX;
 
         document.onmousemove = function (e) {
-            _this.drag.style.top = Math.min(clickY, e.clientY) + 'px';
-            _this.drag.style.left = Math.min(clickX, e.clientX) + 'px';
-            _this.drag.style.height = Math.abs(clickY - e.clientY) + 'px';
-            _this.drag.style.width = Math.abs(clickX - e.clientX) + 'px';
+            _this.drawDrag({
+                top: Math.min(clickY, e.clientY),
+                left: Math.min(clickX, e.clientX),
+                height: Math.abs(clickY - e.clientY),
+                width: Math.abs(clickX - e.clientX)
+            })
         }
 
         document.onmouseup = function (e) {
@@ -106,6 +118,7 @@ Chaos.prototype.stop = function () {
     cancelAnimationFrame(this.req);
     this.startButton.textContent = 'Start';
     this.startButton.onclick = this.start.bind(this);
+    //this.canvas.onmousewheel = this.mouseZoom.bind(this);
 }
 
 Chaos.prototype.start = function () {
@@ -116,7 +129,35 @@ Chaos.prototype.start = function () {
     this.startButton.onclick = this.stop.bind(this);
 }
 
+Chaos.prototype.mouseZoom = function (e) {
+    var xZoom = 1 + e.wheelDelta/this.width;
+    var yZoom = 1 + e.wheelDelta/this.height;
+    console.log(e.wheelDelta, xZoom, yZoom);
+    var centerX = this.scaleX(e.clientX);
+    var centerY = this.scaleY(e.clientY);
+    this.rect.top  = (this.rect.top*yZoom) + centerX;
+    this.rect.bottom = (this.rect.bottom*yZoom) + centerY;
+    this.rect.left = (this.rect.left*xZoom) + centerX;
+    this.rect.right = (this.rect.right*xZoom) + centerY;
+    this.drawDrag({
+        top: this.unScaleY(this.rect.top),
+        left: this.unScaleX(this.rect.left),
+        width: Math.abs(this.unScaleX(this.rect.left) - this.unScaleX(this.rect.right)),
+        height: Math.abs(this.unScaleY(this.rect.top) - this.unScaleY(this.rect.bottom)),
+    })
+    this.setScale();
 
+    return false;
+
+}
+
+Chaos.prototype.drawDrag = function (drag) {
+    this.drag.style.visibility = 'visible';
+    this.drag.style.top = drag.top + 'px';
+    this.drag.style.left = drag.left + 'px';
+    this.drag.style.height = drag.height + 'px';
+    this.drag.style.width = drag.width + 'px';
+}
 Chaos.prototype.plot = function (x, y, color) {
     this.ctx.fillStyle = color;
     this.ctx.fillRect(x, y, 1, 1);
