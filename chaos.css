@@ -1,0 +1,31 @@
+body {
+    padding: 10px;
+    margin: 0px;
+}
+#canvas {
+    border: 1px solid black;
+    float: left;
+}
+#drag {
+    position: absolute;
+    visibility: hidden;
+    border: 1px solid black;
+    z-index: 999999;
+}
+
+#output {
+    padding: 10px;
+    float: left;
+}
+#rect {
+    font-size: 10px;
+    width: 300px;
+}
+label {
+    display: inline-block;
+    width: 100px;
+}
+input {
+    display: inline-block;
+    margin-left: 10px;
+}

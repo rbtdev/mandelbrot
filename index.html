@@ -1,0 +1,36 @@
+<html>
+
+<head>
+    <script src='./chaos.js'></script>
+    <link rel='stylesheet' href='./chaos.css'>
+</head>
+
+<body onload='init("canvas")'>
+    <div id='drag'></div>
+    <div id='content'>
+        <canvas id='canvas' width='500' height='500'></canvas>
+        <div id='output'>
+            <pre id='rect'></pre>
+            <div>
+                <label>Iterations</label>
+                <input id='iterations' placeholder='Max iterations' value='512'>
+            </div>
+            <div>
+                <label>Escape Value</label>
+                <input id='escape' placeholder='Escape value' value='4'>
+            </div>
+            <div>
+                <label>Color Scheme</label>
+                <input id='color' placeholder='Color scheme' value='6'>
+            </div>
+            <div>
+                <button id='start' onclick='chaos.start()'>Start</button>
+            </div>
+            <div>
+                Click and drag a square on the canvas to zoom
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
