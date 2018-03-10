@@ -34,6 +34,7 @@ function Chaos(canvasId) {
     this.drag = document.getElementById('drag');
 
     this.showGradiant();
+    this.start();
 
 
 
