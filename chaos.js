@@ -32,6 +32,7 @@ function Chaos(canvasId) {
     this.maxColors = Math.pow(2, 24) - 1;
     this.maxIterations = this.iterationDiv.value;
     this.drag = document.getElementById('drag');
+    this.canvas.onmousewheel = this.mouseZoom.bind(this);
 
     this.showGradiant();
     this.start();
@@ -101,6 +102,8 @@ function Chaos(canvasId) {
 Chaos.prototype.setScale = function () {
     this.scaledWidth = Math.abs(this.rect.left - this.rect.right);
     this.scaledHeight = Math.abs(this.rect.top - this.rect.bottom);
+    this.scaledCenterX = this.rect.right - (this.scaledWidth/2);
+    this.scaledCenterY = this.rect.top - (this.scaledHeight/2);
     this.rectDiv.innerText = '';
     this.rectDiv.innerText = JSON.stringify(this.rect, null, 2).replace(/[{"}]/g, '') + '\n' +
         'width: ' + this.scaledWidth + '\n' + 'height: ' + this.scaledHeight;
@@ -119,7 +122,6 @@ Chaos.prototype.stop = function () {
     cancelAnimationFrame(this.req);
     this.startButton.textContent = 'Start';
     this.startButton.onclick = this.start.bind(this);
-    //this.canvas.onmousewheel = this.mouseZoom.bind(this);
 }
 
 Chaos.prototype.start = function () {
@@ -129,25 +131,21 @@ Chaos.prototype.start = function () {
     this.startButton.textContent = 'Stop';
     this.startButton.onclick = this.stop.bind(this);
 }
+Chaos.prototype.mouseMove = function (e) {
 
+}
 Chaos.prototype.mouseZoom = function (e) {
+    this.stop();
     var xZoom = 1 + e.wheelDelta/this.width;
     var yZoom = 1 + e.wheelDelta/this.height;
-    console.log(e.wheelDelta, xZoom, yZoom);
-    var centerX = this.scaleX(e.clientX);
-    var centerY = this.scaleY(e.clientY);
-    this.rect.top  = (this.rect.top*yZoom) + centerX;
-    this.rect.bottom = (this.rect.bottom*yZoom) + centerY;
-    this.rect.left = (this.rect.left*xZoom) + centerX;
-    this.rect.right = (this.rect.right*xZoom) + centerY;
-    this.drawDrag({
-        top: this.unScaleY(this.rect.top),
-        left: this.unScaleX(this.rect.left),
-        width: Math.abs(this.unScaleX(this.rect.left) - this.unScaleX(this.rect.right)),
-        height: Math.abs(this.unScaleY(this.rect.top) - this.unScaleY(this.rect.bottom)),
-    })
+    this.rect.top  = this.scaledCenterY + this.scaledHeight*yZoom/2
+    this.rect.bottom = this.scaledCenterY - this.scaledHeight*yZoom/2
+    this.rect.left = this.scaledCenterX - this.scaledWidth*xZoom/2
+    this.rect.right = this.scaledCenterX + this.scaledWidth*xZoom/2
+
     this.setScale();
 
+    this.start();
     return false;
 
 }
