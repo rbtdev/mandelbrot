@@ -12,14 +12,26 @@ function Chaos(canvasId) {
     this.escapeDiv = document.getElementById('escape');
     this.colorShiftDiv = document.getElementById('color-shift');
     this.colorOffsetDiv = document.getElementById('color-offset')
-    this.colorSpreadDiv = document.getElementById('color-spread')
+    this.colorSpreadDiv = document.getElementById('color-spread');
+    this.colorSpreadDiv.onkeyup = this.showGradiant.bind(this);
+    this.colorOffsetDiv.onkeyup = this.showGradiant.bind(this);
+    this.colorShiftDiv.onkeyup = this.showGradiant.bind(this);
+    this.iterationDiv.onkeyup = this.showGradiant.bind(this);
     this.speedDiv = document.getElementById('speed');
+    this.gradientCanvas = document.getElementById('gradient');
+    this.gradientWidth = this.gradientCanvas.width;
+    this.gradientHeight = this.gradientCanvas.height;
+    this.gradient = this.gradientCanvas.getContext("2d");
     this.ctx = canvas.getContext("2d");
     this.pointSize = 1;
     this.height = this.canvas.height
     this.width = this.canvas.width
     this.maxColors = Math.pow(2, 24) - 1;
+    this.maxIterations = this.iterationDiv.value;
     this.drag = document.getElementById('drag');
+
+    this.showGradiant();
+
 
 
     this.scaleX = function (x) {
@@ -83,10 +95,10 @@ Chaos.prototype.setScale = function () {
 
 Chaos.prototype.color = function (c) {
     var fill = '000000';
-    var color = (((c << this.colorShift) * this.colorSpread) + this.colorOffset).toString(16);
+    //var color = ((((c << this.colorShift) * this.colorSpread) + this.colorOffset)).toString(16);
+    var color = (Math.round(c) * this.colorSpread)  << this.colorShift + this.colorOffset.toString(16);
 
     var hex = '#' + (fill + color).slice(-6);
-
     return hex;
 }
 
@@ -110,9 +122,22 @@ Chaos.prototype.plot = function (x, y, color) {
     this.ctx.fillRect(x, y, 1, 1);
 }
 
+Chaos.prototype.showGradiant = function () {
+    this.colorShift = parseInt(this.colorShiftDiv.value);
+    this.colorOffset = parseInt(this.colorOffsetDiv.value);
+    this.colorSpread = parseInt(this.colorSpreadDiv.value);
+    this.maxIterations= parseInt(this.iterationDiv.value);
+    var step = this.maxIterations/this.gradientCanvas.width;
+    for (var x = 0; x <= this.gradientCanvas.width; x++) {
+        var c = x * step;
+        var color = this.color(c);
+        this.gradient.fillStyle = color;
+        this.gradient.fillRect(x, 0, 1, this.gradientCanvas.height);
+    }
+}
 Chaos.prototype.run = function () {
     this.ctx.clearRect(0, 0, this.width, this.height);
-    this.maxIterations = parseFloat(this.iterationDiv.value);
+    this.maxIterations = parseInt(this.iterationDiv.value);
     this.escape = parseFloat(this.escapeDiv.value);
     this.colorShift = parseInt(this.colorShiftDiv.value);
     this.colorOffset = parseInt(this.colorOffsetDiv.value);
