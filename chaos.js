@@ -160,24 +160,23 @@ Chaos.prototype.mouseMove = function (e) {
 }
 Chaos.prototype.mouseZoom = function (e) {
     this.stop();
-    var xZoom = 1 + e.wheelDelta / this.width;
-    var yZoom = 1 + e.wheelDelta / this.height;
+    var zoom = 1 + (Math.sign(e.wheelDelta) * .01);
     var xCenter = e.clientX;
     var yCenter = e.clientY;
-    this.setZoom(xZoom, yZoom, xCenter, yCenter);
+    this.setZoom(zoom, xCenter, yCenter);
 
     this.start();
     return false;
 }
 
-Chaos.prototype.setZoom = function (xZoom, yZoom, xCenter, yCenter) {
+Chaos.prototype.setZoom = function (zoom, xCenter, yCenter) {
     var scaledX = this.scaleX(xCenter);
     var scaledY = this.scaleY(yCenter);
 
-    this.rect.top = scaledY + this.scaledHeight * yZoom / 2
-    this.rect.bottom = scaledY - this.scaledHeight * yZoom / 2
-    this.rect.left = scaledX - this.scaledWidth * xZoom / 2
-    this.rect.right = scaledX + this.scaledWidth * xZoom / 2
+    this.rect.top = scaledY + this.scaledHeight * zoom / 2
+    this.rect.bottom = scaledY - this.scaledHeight * zoom / 2
+    this.rect.left = scaledX - this.scaledWidth * zoom / 2
+    this.rect.right = scaledX + this.scaledWidth * zoom / 2
     this.setScale();
 
     var moveX = this.scaledCenterX - this.scaleX(xCenter);
@@ -224,6 +223,8 @@ Chaos.prototype.run = function () {
     var Px = 0;
     var escape = 4;
     var zoom = 1;
+    var current = 0;
+    var total = this.width * this.height;
     this.req = requestAnimationFrame(compute.bind(this, Px));
 
     function compute(Px) {
@@ -245,7 +246,7 @@ Chaos.prototype.run = function () {
 
                 var color = this.color(iteration)
                 if (iteration === this.maxIterations) color = this.color(0);
-                this.plot(Px, Py, color)
+                this.plot(Px, Py, color);
             }
             Px++;
         }
@@ -253,7 +254,7 @@ Chaos.prototype.run = function () {
         else if (this.movie) {
             if (zoom > 0.0001) {
                 zoom++
-                this.setZoom(1 / Math.pow(zoom, 1 / zoom), 1 / Math.pow(zoom, 1 / zoom), this.zoomCenterX, this.zoomCenterY);
+                this.setZoom(1 / Math.pow(zoom, 1 / zoom), this.zoomCenterX, this.zoomCenterY);
                 Px = 0;
                 this.req = requestAnimationFrame(compute.bind(this, Px))
             }

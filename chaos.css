@@ -49,6 +49,13 @@ body {
     text-align: right;
 }
 
+#progress {
+    height: 20px;
+    border-radius: 3px;
+    background-color: green;
+    visibility: hidden;
+}
+
 #rect {
     font-size: 10px;
     width: 300px;
