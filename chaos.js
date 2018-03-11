@@ -68,44 +68,46 @@ function Chaos(canvasId) {
     this.setScale();
 
     var _this = this;
-    // _this.canvas.onmousedown = function (e) {
+    _this.canvas.onmousedown = function (e) {
 
-    //     var clickY;
-    //     var clickX;
-    //     var clickY = e.clientY;
-    //     var clickX = e.clientX;
+        var clickY;
+        var clickX;
+        var clickY = e.clientY;
+        var clickX = e.clientX;
 
-    //     document.onmousemove = function (e) {
-    //         _this.drawDrag({
-    //             top: Math.min(clickY, e.clientY),
-    //             left: Math.min(clickX, e.clientX),
-    //             height: Math.abs(clickY - e.clientY),
-    //             width: Math.abs(clickX - e.clientX)
-    //         })
-    //     }
+        document.onmousemove = function (e) {
+            _this.drawDrag({
+                top: Math.min(clickY, e.clientY),
+                left: Math.min(clickX, e.clientX),
+                height: Math.abs(clickY - e.clientY),
+                width: Math.abs(clickX - e.clientX)
+            })
+        }
 
-    //     document.onmouseup = function (e) {
-    //         var rect = _this.canvas.getBoundingClientRect();
-    //         var newRect = {}
-    //         newRect.left = _this.scaleX(clickX - rect.left);
-    //         newRect.top = _this.scaleY(clickY - rect.top);
-    //         newRect.right = _this.scaleX(e.clientX - rect.left);
-    //         newRect.bottom = _this.scaleY(e.clientY - rect.top);
-    //         _this.rect = newRect;
-    //         _this.canvas.onmousemove = null;
-    //         _this.drag.style.visibility = 'hidden';
-    //         _this.setScale();
-    //         _this.stop();
-    //         _this.start();
-    //     }
-    // };
+        document.onmouseup = function (e) {
+            var rect = _this.canvas.getBoundingClientRect();
+            var newRect = {}
+            newRect.left = _this.scaleX(clickX - rect.left);
+            newRect.top = _this.scaleY(clickY - rect.top);
+            newRect.right = _this.scaleX(e.clientX - rect.left);
+            newRect.bottom = _this.scaleY(e.clientY - rect.top);
+            _this.rect = newRect;
+            _this.canvas.onmousemove = null;
+            _this.drag.style.visibility = 'hidden';
+            _this.setScale();
+            _this.stop();
+            _this.start();
+        }
+    };
 
 }
 
 Chaos.prototype.playMovie = function () {
     var _this = this;
     this.movieText.innerText = 'Click on the set to start the movie';
+    this.canvas.onmousedown = null;
     this.canvas.onclick = function (e) {
+        _this.canvas.onclick = null;
         _this.movie = true;
         _this.zoomCenterX = e.clientX;
         _this.zoomCenterY = e.clientY;
@@ -133,6 +135,7 @@ Chaos.prototype.color = function (c) {
 }
 
 Chaos.prototype.stop = function () {
+    this.movie = false;
     cancelAnimationFrame(this.req);
     this.startButton.textContent = 'Start';
     this.startButton.onclick = this.start.bind(this);
