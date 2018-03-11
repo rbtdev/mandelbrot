@@ -48,8 +48,9 @@ body {
 #controls .color-scheme {
     padding-top: 20px;
     padding-bottom: 10px;
-    width: 200px;
-    text-align: left;
+}
+#controls .color-scheme input {
+    margin-top: 5px;
 }
 
 #controls button {

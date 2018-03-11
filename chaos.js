@@ -139,7 +139,7 @@ Chaos.prototype.setScale = function () {
 Chaos.prototype.color = function (c) {
     var fill = '000000';
     //var color = ((((c << this.colorShift) * this.colorSpread) + this.colorOffset)).toString(16);
-    var color = (Math.round(c) * this.colorSpread) << this.colorShift + this.colorOffset.toString(16);
+    var color = (((Math.round(c) * this.colorSpread) << this.colorShift) + this.colorOffset).toString(16);
 
     var hex = '#' + (fill + color).slice(-6);
     return hex;
@@ -207,7 +207,7 @@ Chaos.prototype.plot = function (x, y, color) {
 Chaos.prototype.showGradiant = function () {
     this.colorShift = parseInt(this.colorShiftDiv.value);
     this.colorOffset = parseInt(this.colorOffsetDiv.value);
-    this.colorSpread = parseInt(this.colorSpreadDiv.value);
+    this.colorSpread = parseInt(this.colorSpreadDiv.value) || 1;
     this.maxIterations = parseInt(this.iterationDiv.value);
     var step = this.maxIterations / this.gradientCanvas.width;
     for (var x = 0; x <= this.gradientCanvas.width; x++) {
