@@ -128,8 +128,12 @@ Chaos.prototype.setScale = function () {
     this.scaledCenterX = this.rect.right - (this.scaledWidth / 2);
     this.scaledCenterY = this.rect.top - (this.scaledHeight / 2);
     this.rectDiv.innerText = '';
-    this.rectDiv.innerText = JSON.stringify(this.rect, null, 2).replace(/[{"}]/g, '') + '\n' +
-        'width: ' + this.scaledWidth + '\n' + 'height: ' + this.scaledHeight;
+    this.rectDiv.innerText = 'top:    ' + this.rect.top + '\n' +
+                             'left:   ' + this.rect.left + '\n' +
+                             'bottom: ' + this.rect.bottom + '\n' +
+                             'right:  ' + this.rect.right + '\n' +
+                             'width:  ' + this.scaledWidth + '\n' +
+                             'height: ' + this.scaledHeight + '\n';
 }
 
 Chaos.prototype.color = function (c) {
