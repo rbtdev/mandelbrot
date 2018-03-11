@@ -160,7 +160,7 @@ Chaos.prototype.mouseMove = function (e) {
 }
 Chaos.prototype.mouseZoom = function (e) {
     this.stop();
-    var zoom = 1 + (Math.sign(e.wheelDelta) * .01);
+    var zoom = 1 + (Math.sign(e.wheelDelta) * .1);
     var xCenter = e.clientX;
     var yCenter = e.clientY;
     this.setZoom(zoom, xCenter, yCenter);
@@ -214,7 +214,8 @@ Chaos.prototype.showGradiant = function () {
     }
 }
 Chaos.prototype.run = function () {
-    this.ctx.clearRect(0, 0, this.width, this.height);
+    // this.ctx.fillStyle = '#050505';
+    // this.ctx.fillRect(0, 0, this.width, this.height);
     this.maxIterations = parseInt(this.iterationDiv.value);
     this.colorShift = parseInt(this.colorShiftDiv.value);
     this.colorOffset = parseInt(this.colorOffsetDiv.value);
