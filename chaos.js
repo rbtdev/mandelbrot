@@ -8,11 +8,14 @@ function Chaos(canvasId) {
 
     this.canvas = document.getElementById(canvasId);
     this.canvas.height = window.innerHeight - 2;
-    this.canvas.width = this.canvas.height;
+    this.canvas.width = window.innerWidth-2;
+    this.height = this.canvas.height
+    this.width = this.canvas.width
+    this.aspectRatio = this.width/this.height;
+
     this.startButton = document.getElementById('start');
     this.rectDiv = document.getElementById('rect');
     this.iterationDiv = document.getElementById('iterations');
-    this.escapeDiv = document.getElementById('escape');
     this.colorShiftDiv = document.getElementById('color-shift');
     this.colorOffsetDiv = document.getElementById('color-offset')
     this.colorSpreadDiv = document.getElementById('color-spread');
@@ -30,12 +33,11 @@ function Chaos(canvasId) {
     this.gradient = this.gradientCanvas.getContext("2d");
     this.ctx = canvas.getContext("2d");
     this.pointSize = 1;
-    this.height = this.canvas.height
-    this.width = this.canvas.width
     this.maxColors = Math.pow(2, 24) - 1;
     this.maxIterations = this.iterationDiv.value;
     this.drag = document.getElementById('drag');
     this.canvas.onmousewheel = this.mouseZoom.bind(this);
+    this.speedDiv.value = this.canvas.width;
 
     this.showGradiant();
     this.start();
@@ -59,11 +61,16 @@ function Chaos(canvasId) {
     }.bind(this);
 
     var _this = this;
+    var centerX = -0.5;
+    var width = 3 * this.aspectRatio;
+    var left = centerX - (width/2);
+    var right = centerX + (width/2);
+    var height = 3;
     this.rect = {
         top: 1.5,
-        left: -2,
+        left: left,
         bottom: -1.5,
-        right: 1
+        right: right
     }
     this.setScale();
 
@@ -210,13 +217,12 @@ Chaos.prototype.showGradiant = function () {
 Chaos.prototype.run = function () {
     this.ctx.clearRect(0, 0, this.width, this.height);
     this.maxIterations = parseInt(this.iterationDiv.value);
-    this.escape = parseFloat(this.escapeDiv.value);
     this.colorShift = parseInt(this.colorShiftDiv.value);
     this.colorOffset = parseInt(this.colorOffsetDiv.value);
     this.colorSpread = parseInt(this.colorSpreadDiv.value);
     this.speed = parseInt(this.speedDiv.value, 10);
     var Px = 0;
-    var escape = this.escape;
+    var escape = 4;
     var zoom = 1;
     this.req = requestAnimationFrame(compute.bind(this, Px));
 

@@ -20,23 +20,48 @@ body {
     z-index: 999999;
 }
 
-#output {
+#controls {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    border: 1px solid gray;
+    border-radius: 3px;
+    background-color: rgba(70,70,70,0.6);
     padding: 10px;
-    float: left;
+    color: white
 }
+#controls input {
+    border: 1px solid green;
+    border-radius: 2px;
+    display: inline-block;
+    margin-left: 10px;
+    padding:5px;
+}
+#controls label {
+    display: inline-block;
+    width: 100px;
+    text-align: right;
+}
+#controls .color-scheme {
+    padding-top: 20px;
+    padding-bottom: 10px;
+    width: 100px;
+    text-align: right;
+}
+
 #rect {
     font-size: 10px;
     width: 300px;
 }
-label {
-    display: inline-block;
-    width: 100px;
-}
-input {
-    display: inline-block;
-    margin-left: 10px;
-}
+
 #gradient {
-    margin: 10px;
-    margin-left: 110px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    width: 100%
+}
+
+#buttons {
+    width: 100%;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
