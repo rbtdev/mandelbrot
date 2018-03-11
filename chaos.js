@@ -16,6 +16,9 @@ function Chaos(canvasId) {
     this.colorShiftDiv = document.getElementById('color-shift');
     this.colorOffsetDiv = document.getElementById('color-offset')
     this.colorSpreadDiv = document.getElementById('color-spread');
+    this.movieButton = document.getElementById('movie');
+    this.movieText = document.getElementById('movie-text');
+    this.movieButton.onclick = this.playMovie.bind(this);
     this.colorSpreadDiv.onkeyup = this.showGradiant.bind(this);
     this.colorOffsetDiv.onkeyup = this.showGradiant.bind(this);
     this.colorShiftDiv.onkeyup = this.showGradiant.bind(this);
@@ -44,11 +47,11 @@ function Chaos(canvasId) {
     }.bind(this);
 
     this.unScaleX = function (x) {
-        return ((x - this.rect.left) / (this.scaledWidth/this.width));
+        return ((x - this.rect.left) / (this.scaledWidth / this.width));
     }
 
     this.unScaleY = function (y) {
-        return ((this.rect.top + y) / (this.scaledHeight/this.height));
+        return ((this.rect.top + y) / (this.scaledHeight / this.height));
     }
 
     this.scaleY = function (y) {
@@ -65,45 +68,56 @@ function Chaos(canvasId) {
     this.setScale();
 
     var _this = this;
-    _this.canvas.onmousedown = function (e) {
+    // _this.canvas.onmousedown = function (e) {
 
-        var clickY;
-        var clickX;
-        var clickY = e.clientY;
-        var clickX = e.clientX;
+    //     var clickY;
+    //     var clickX;
+    //     var clickY = e.clientY;
+    //     var clickX = e.clientX;
 
-        document.onmousemove = function (e) {
-            _this.drawDrag({
-                top: Math.min(clickY, e.clientY),
-                left: Math.min(clickX, e.clientX),
-                height: Math.abs(clickY - e.clientY),
-                width: Math.abs(clickX - e.clientX)
-            })
-        }
+    //     document.onmousemove = function (e) {
+    //         _this.drawDrag({
+    //             top: Math.min(clickY, e.clientY),
+    //             left: Math.min(clickX, e.clientX),
+    //             height: Math.abs(clickY - e.clientY),
+    //             width: Math.abs(clickX - e.clientX)
+    //         })
+    //     }
 
-        document.onmouseup = function (e) {
-            var rect = _this.canvas.getBoundingClientRect();
-            var newRect = {}
-            newRect.left = _this.scaleX(clickX - rect.left);
-            newRect.top = _this.scaleY(clickY - rect.top);
-            newRect.right = _this.scaleX(e.clientX - rect.left);
-            newRect.bottom = _this.scaleY(e.clientY - rect.top);
-            _this.rect = newRect;
-            _this.canvas.onmousemove = null;
-            _this.drag.style.visibility = 'hidden';
-            _this.setScale();
-            _this.stop();
-            _this.start();
-        }
-    };
+    //     document.onmouseup = function (e) {
+    //         var rect = _this.canvas.getBoundingClientRect();
+    //         var newRect = {}
+    //         newRect.left = _this.scaleX(clickX - rect.left);
+    //         newRect.top = _this.scaleY(clickY - rect.top);
+    //         newRect.right = _this.scaleX(e.clientX - rect.left);
+    //         newRect.bottom = _this.scaleY(e.clientY - rect.top);
+    //         _this.rect = newRect;
+    //         _this.canvas.onmousemove = null;
+    //         _this.drag.style.visibility = 'hidden';
+    //         _this.setScale();
+    //         _this.stop();
+    //         _this.start();
+    //     }
+    // };
 
+}
+
+Chaos.prototype.playMovie = function () {
+    var _this = this;
+    this.movieText.innerText = 'Click on the set to start the movie';
+    this.canvas.onclick = function (e) {
+        _this.movie = true;
+        _this.zoomCenterX = e.clientX;
+        _this.zoomCenterY = e.clientY;
+        _this.start();
+    }
 }
 
 Chaos.prototype.setScale = function () {
     this.scaledWidth = Math.abs(this.rect.left - this.rect.right);
     this.scaledHeight = Math.abs(this.rect.top - this.rect.bottom);
-    this.scaledCenterX = this.rect.right - (this.scaledWidth/2);
-    this.scaledCenterY = this.rect.top - (this.scaledHeight/2);
+    this.scaledCenterX = this.rect.right - (this.scaledWidth / 2);
+    this.scaledCenterY = this.rect.top - (this.scaledHeight / 2);
     this.rectDiv.innerText = '';
     this.rectDiv.innerText = JSON.stringify(this.rect, null, 2).replace(/[{"}]/g, '') + '\n' +
         'width: ' + this.scaledWidth + '\n' + 'height: ' + this.scaledHeight;
@@ -112,7 +126,7 @@ Chaos.prototype.setScale = function () {
 Chaos.prototype.color = function (c) {
     var fill = '000000';
     //var color = ((((c << this.colorShift) * this.colorSpread) + this.colorOffset)).toString(16);
-    var color = (Math.round(c) * this.colorSpread)  << this.colorShift + this.colorOffset.toString(16);
+    var color = (Math.round(c) * this.colorSpread) << this.colorShift + this.colorOffset.toString(16);
 
     var hex = '#' + (fill + color).slice(-6);
     return hex;
@@ -136,34 +150,33 @@ Chaos.prototype.mouseMove = function (e) {
 }
 Chaos.prototype.mouseZoom = function (e) {
     this.stop();
-    var xZoom = 1 + e.wheelDelta/this.width;
-    var yZoom = 1 + e.wheelDelta/this.height;
-    var scaledX = this.scaleX(e.clientX);
-    var scaledY = this.scaleY(e.clientY);
+    var xZoom = 1 + e.wheelDelta / this.width;
+    var yZoom = 1 + e.wheelDelta / this.height;
+    var xCenter = e.clientX;
+    var yCenter = e.clientY;
+    this.setZoom(xZoom, yZoom, xCenter, yCenter);
 
-    this.rect.top  = scaledY + this.scaledHeight*yZoom/2
-    this.rect.bottom = scaledY - this.scaledHeight*yZoom/2
-    this.rect.left = scaledX - this.scaledWidth*xZoom/2
-    this.rect.right = scaledX + this.scaledWidth*xZoom/2
+    this.start();
+    return false;
+}
 
+Chaos.prototype.setZoom = function (xZoom, yZoom, xCenter, yCenter) {
+    var scaledX = this.scaleX(xCenter);
+    var scaledY = this.scaleY(yCenter);
 
+    this.rect.top = scaledY + this.scaledHeight * yZoom / 2
+    this.rect.bottom = scaledY - this.scaledHeight * yZoom / 2
+    this.rect.left = scaledX - this.scaledWidth * xZoom / 2
+    this.rect.right = scaledX + this.scaledWidth * xZoom / 2
     this.setScale();
 
-    var moveX = this.scaledCenterX - this.scaleX(e.clientX);
-    var moveY = this.scaledCenterY - this.scaleY(e.clientY);
+    var moveX = this.scaledCenterX - this.scaleX(xCenter);
+    var moveY = this.scaledCenterY - this.scaleY(yCenter);
     this.rect.top += moveY;
     this.rect.bottom += moveY;
     this.rect.left += moveX;
     this.rect.right += moveX;
     this.setScale();
-
-    
-
-
-
-    this.start();
-    return false;
-
 }
 
 Chaos.prototype.drawDrag = function (drag) {
@@ -182,8 +195,8 @@ Chaos.prototype.showGradiant = function () {
     this.colorShift = parseInt(this.colorShiftDiv.value);
     this.colorOffset = parseInt(this.colorOffsetDiv.value);
     this.colorSpread = parseInt(this.colorSpreadDiv.value);
-    this.maxIterations= parseInt(this.iterationDiv.value);
-    var step = this.maxIterations/this.gradientCanvas.width;
+    this.maxIterations = parseInt(this.iterationDiv.value);
+    var step = this.maxIterations / this.gradientCanvas.width;
     for (var x = 0; x <= this.gradientCanvas.width; x++) {
         var c = x * step;
         var color = this.color(c);
@@ -201,6 +214,7 @@ Chaos.prototype.run = function () {
     this.speed = parseInt(this.speedDiv.value, 10);
     var Px = 0;
     var escape = this.escape;
+    var zoom = 1;
     this.req = requestAnimationFrame(compute.bind(this, Px));
 
     function compute(Px) {
@@ -227,7 +241,18 @@ Chaos.prototype.run = function () {
             Px++;
         }
         if (Px < this.width) this.req = requestAnimationFrame(compute.bind(this, Px));
-        else this.stop();
+        else if (this.movie) {
+            if (zoom > 0.0001) {
+                zoom++
+                this.setZoom(1 / Math.pow(zoom, 1 / zoom), 1 / Math.pow(zoom, 1 / zoom), this.zoomCenterX, this.zoomCenterY);
+                Px = 0;
+                this.req = requestAnimationFrame(compute.bind(this, Px))
+            }
+            else this.stop();
+        }
+        else {
+            this.stop();
+        }
     }
 }
 
