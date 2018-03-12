@@ -38,7 +38,6 @@ function Chaos(canvasId) {
     this.drag = document.getElementById('drag');
     this.canvas.onmousewheel = this.mouseZoom.bind(this);
     this.speedDiv.value = this.canvas.width;
-
     this.showGradiant();
     this.start();
 
@@ -75,38 +74,65 @@ function Chaos(canvasId) {
     this.setScale();
 
     var _this = this;
+    document.getElementById('zoom-in').onclick = this.zoomIn.bind(this);
+    document.getElementById('zoom-out').onclick = this.zoomOut.bind(this);
     _this.canvas.onmousedown = function (e) {
 
         var clickY;
         var clickX;
         var clickY = e.clientY;
         var clickX = e.clientX;
+        var drag = {};
 
         document.onmousemove = function (e) {
-            _this.drawDrag({
+            var width = Math.abs(clickX - e.clientX);
+            var height = width / _this.aspectRatio;
+
+            drag = {
                 top: Math.min(clickY, e.clientY),
                 left: Math.min(clickX, e.clientX),
-                height: Math.abs(clickY - e.clientY),
-                width: Math.abs(clickX - e.clientX)
-            })
+                height: height,
+                width: width
+            }
+
+            _this.drag.style.visibility = 'visible';
+            _this.drag.style.top = drag.top + 'px';
+            _this.drag.style.left = drag.left + 'px';
+            _this.drag.style.height = drag.height + 'px';
+            _this.drag.style.width = drag.width + 'px';
         }
 
         document.onmouseup = function (e) {
-            var rect = _this.canvas.getBoundingClientRect();
+            document.onmousemove = null;
+            var width = Math.abs(_this.scaleX(drag.left) - _this.scaleX(drag.left + drag.width));
+            var height = width/_this.aspectRatio;
             var newRect = {}
-            newRect.left = _this.scaleX(clickX - rect.left);
-            newRect.top = _this.scaleY(clickY - rect.top);
-            newRect.right = _this.scaleX(e.clientX - rect.left);
-            newRect.bottom = _this.scaleY(e.clientY - rect.top);
+            newRect.left = _this.scaleX(drag.left);
+            newRect.top = _this.scaleY(drag.top);
+            newRect.right = newRect.left + width;
+            newRect.bottom = newRect.top - height;
             _this.rect = newRect;
             _this.canvas.onmousemove = null;
             _this.drag.style.visibility = 'hidden';
-            _this.setScale();
-            _this.stop();
-            _this.start();
+            if (width > 1e-16) {
+                _this.setScale();
+                _this.stop();
+                _this.start();
+            }
+    
         }
     };
 
+}
+
+Chaos.prototype.zoomIn = function () {
+    this.setZoom(.9, this.width/2, this.height/2);
+    this.start();
+}
+
+Chaos.prototype.zoomOut = function () {
+    this.setZoom(1.1, this.width/2, this.height/2);
+    this.start();
 }
 
 Chaos.prototype.playMovie = function () {
@@ -128,12 +154,12 @@ Chaos.prototype.setScale = function () {
     this.scaledCenterX = this.rect.right - (this.scaledWidth / 2);
     this.scaledCenterY = this.rect.top - (this.scaledHeight / 2);
     this.rectDiv.innerText = '';
-    this.rectDiv.innerText = 'top:    ' + this.rect.top + '\n' +
-                             'left:   ' + this.rect.left + '\n' +
-                             'bottom: ' + this.rect.bottom + '\n' +
-                             'right:  ' + this.rect.right + '\n' +
-                             'width:  ' + this.scaledWidth + '\n' +
-                             'height: ' + this.scaledHeight + '\n';
+    this.rectDiv.innerText = 'top:    ' + (Math.sign(this.rect.top)>0?' ':'') + this.rect.top + '\n' +
+                             'left:   ' + (Math.sign(this.rect.left)>0?' ':'') + this.rect.left + '\n' +
+                             'bottom: ' + (Math.sign(this.rect.bottom)>0?' ':'') + this.rect.bottom + '\n' +
+                             'right:  ' + (Math.sign(this.rect.right)>0?' ':'') +this.rect.right + '\n' +
+                             'width:   ' + this.scaledWidth + '\n' +
+                             'height:  ' + this.scaledHeight + '\n';
 }
 
 Chaos.prototype.color = function (c) {
@@ -153,6 +179,7 @@ Chaos.prototype.stop = function () {
 }
 
 Chaos.prototype.start = function () {
+    this.stop()
     document.onmouseup = null;
     document.onmousemove = null;
     this.run();
@@ -192,13 +219,6 @@ Chaos.prototype.setZoom = function (zoom, xCenter, yCenter) {
     this.setScale();
 }
 
-Chaos.prototype.drawDrag = function (drag) {
-    this.drag.style.visibility = 'visible';
-    this.drag.style.top = drag.top + 'px';
-    this.drag.style.left = drag.left + 'px';
-    this.drag.style.height = drag.height + 'px';
-    this.drag.style.width = drag.width + 'px';
-}
 Chaos.prototype.plot = function (x, y, color) {
     this.ctx.fillStyle = color;
     this.ctx.fillRect(x, y, 1, 1);
