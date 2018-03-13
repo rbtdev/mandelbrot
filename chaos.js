@@ -12,6 +12,9 @@ function Chaos(canvasId) {
     this.height = this.canvas.height
     this.width = this.canvas.width
     this.aspectRatio = this.width/this.height;
+    this.ctx = canvas.getContext("2d");
+    this.ctx.fillStyle = 'black';
+    this.ctx.fillRect(0,0, this.width, this.height);
 
     this.startButton = document.getElementById('start');
     this.rectDiv = document.getElementById('rect');
@@ -19,28 +22,25 @@ function Chaos(canvasId) {
     this.colorShiftDiv = document.getElementById('color-shift');
     this.colorOffsetDiv = document.getElementById('color-offset')
     this.colorSpreadDiv = document.getElementById('color-spread');
-    this.movieButton = document.getElementById('movie');
-    this.movieText = document.getElementById('movie-text');
-    this.movieButton.onclick = this.playMovie.bind(this);
+    this.speedDiv = document.getElementById('speed');
+    this.drag = document.getElementById('drag');
+    this.progessive = document.getElementById('progressive');
+
     this.colorSpreadDiv.onkeyup = this.showGradiant.bind(this);
     this.colorOffsetDiv.onkeyup = this.showGradiant.bind(this);
     this.colorShiftDiv.onkeyup = this.showGradiant.bind(this);
     this.iterationDiv.onkeyup = this.showGradiant.bind(this);
-    this.speedDiv = document.getElementById('speed');
+
     this.gradientCanvas = document.getElementById('gradient');
-    this.gradientWidth = this.gradientCanvas.width;
-    this.gradientHeight = this.gradientCanvas.height;
     this.gradient = this.gradientCanvas.getContext("2d");
-    this.ctx = canvas.getContext("2d");
+
     this.pointSize = 1;
     this.maxColors = Math.pow(2, 24) - 1;
     this.maxIterations = this.iterationDiv.value;
-    this.drag = document.getElementById('drag');
     this.canvas.onmousewheel = this.mouseZoom.bind(this);
-    this.speedDiv.value = this.canvas.width;
     this.showGradiant();
+    this.speedDiv.value = 20;
     this.start();
-
 
 
     this.scaleX = function (x) {
@@ -76,8 +76,17 @@ function Chaos(canvasId) {
     var _this = this;
     document.getElementById('zoom-in').onclick = this.zoomIn.bind(this);
     document.getElementById('zoom-out').onclick = this.zoomOut.bind(this);
-    _this.canvas.onmousedown = function (e) {
 
+
+}
+Chaos.prototype.deactivateDragZoom = function () {
+    this.canvas.onmousedown = null;
+    document.onmousemove = null;
+    document.onmouseup = null;
+}
+Chaos.prototype.activateDragZoom = function () {
+    var _this = this;
+    _this.canvas.onmousedown = function (e) {
         var clickY;
         var clickX;
         var clickY = e.clientY;
@@ -112,19 +121,17 @@ function Chaos(canvasId) {
             newRect.right = newRect.left + width;
             newRect.bottom = newRect.top - height;
             _this.rect = newRect;
-            _this.canvas.onmousemove = null;
-            _this.drag.style.visibility = 'hidden';
             if (width > 1e-16) {
-                _this.setScale();
+                _this.drag.style.visibility = 'hidden';
+                _this.deactivateDragZoom();
                 _this.stop();
+                _this.setScale();
                 _this.start();
             }
     
         }
     };
-
 }
-
 Chaos.prototype.zoomIn = function () {
     this.setZoom(.9, this.width/2, this.height/2);
     this.start();
@@ -133,19 +140,6 @@ Chaos.prototype.zoomIn = function () {
 Chaos.prototype.zoomOut = function () {
     this.setZoom(1.1, this.width/2, this.height/2);
     this.start();
-}
-
-Chaos.prototype.playMovie = function () {
-    var _this = this;
-    this.movieText.innerText = 'Click on the set to start the movie';
-    this.canvas.onmousedown = null;
-    this.canvas.onclick = function (e) {
-        _this.canvas.onclick = null;
-        _this.movie = true;
-        _this.zoomCenterX = e.clientX;
-        _this.zoomCenterY = e.clientY;
-        _this.start();
-    }
 }
 
 Chaos.prototype.setScale = function () {
@@ -172,7 +166,6 @@ Chaos.prototype.color = function (c) {
 }
 
 Chaos.prototype.stop = function () {
-    this.movie = false;
     cancelAnimationFrame(this.req);
     this.startButton.textContent = 'Start';
     this.startButton.onclick = this.start.bind(this);
@@ -180,8 +173,7 @@ Chaos.prototype.stop = function () {
 
 Chaos.prototype.start = function () {
     this.stop()
-    document.onmouseup = null;
-    document.onmousemove = null;
+    this.activateDragZoom();
     this.run();
     this.startButton.textContent = 'Stop';
     this.startButton.onclick = this.stop.bind(this);
@@ -253,6 +245,7 @@ Chaos.prototype.run = function () {
     this.req = requestAnimationFrame(compute.bind(this, Px));
 
     function compute(Px) {
+        this.speed = this.progessive.checked?this.speed:this.width;
         for (var col = 0; col < this.speed && Px < this.width; col++) {
             var x0 = this.scaleX(Px);
 
@@ -276,15 +269,6 @@ Chaos.prototype.run = function () {
             Px++;
         }
         if (Px < this.width) this.req = requestAnimationFrame(compute.bind(this, Px));
-        else if (this.movie) {
-            if (zoom > 0.0001) {
-                zoom++
-                this.setZoom(1 / Math.pow(zoom, 1 / zoom), this.zoomCenterX, this.zoomCenterY);
-                Px = 0;
-                this.req = requestAnimationFrame(compute.bind(this, Px))
-            }
-            else this.stop();
-        }
         else {
             this.stop();
         }
