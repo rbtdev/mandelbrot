@@ -8,13 +8,13 @@ function Chaos(canvasId) {
 
     this.canvas = document.getElementById(canvasId);
     this.canvas.height = window.innerHeight - 2;
-    this.canvas.width = window.innerWidth-2;
+    this.canvas.width = window.innerWidth - 2;
     this.height = this.canvas.height
     this.width = this.canvas.width
-    this.aspectRatio = this.width/this.height;
+    this.aspectRatio = this.width / this.height;
     this.ctx = canvas.getContext("2d");
     this.ctx.fillStyle = 'black';
-    this.ctx.fillRect(0,0, this.width, this.height);
+    this.ctx.fillRect(0, 0, this.width, this.height);
 
     this.startButton = document.getElementById('start');
     this.rectDiv = document.getElementById('rect');
@@ -40,7 +40,6 @@ function Chaos(canvasId) {
     this.canvas.onmousewheel = this.mouseZoom.bind(this);
     this.showGradiant();
     this.speedDiv.value = 20;
-    this.start();
 
 
     this.scaleX = function (x) {
@@ -62,8 +61,8 @@ function Chaos(canvasId) {
     var _this = this;
     var centerX = -0.5;
     var width = 3 * this.aspectRatio;
-    var left = centerX - (width/2);
-    var right = centerX + (width/2);
+    var left = centerX - (width / 2);
+    var right = centerX + (width / 2);
     var height = 3;
     this.rect = {
         top: 1.5,
@@ -77,6 +76,7 @@ function Chaos(canvasId) {
     document.getElementById('zoom-in').onclick = this.zoomIn.bind(this);
     document.getElementById('zoom-out').onclick = this.zoomOut.bind(this);
 
+    this.start();
 
 }
 Chaos.prototype.deactivateDragZoom = function () {
@@ -114,7 +114,7 @@ Chaos.prototype.activateDragZoom = function () {
         document.onmouseup = function (e) {
             document.onmousemove = null;
             var width = Math.abs(_this.scaleX(drag.left) - _this.scaleX(drag.left + drag.width));
-            var height = width/_this.aspectRatio;
+            var height = width / _this.aspectRatio;
             var newRect = {}
             newRect.left = _this.scaleX(drag.left);
             newRect.top = _this.scaleY(drag.top);
@@ -128,17 +128,17 @@ Chaos.prototype.activateDragZoom = function () {
                 _this.setScale();
                 _this.start();
             }
-    
+
         }
     };
 }
 Chaos.prototype.zoomIn = function () {
-    this.setZoom(.9, this.width/2, this.height/2);
+    this.setZoom(.9, this.width / 2, this.height / 2);
     this.start();
 }
 
 Chaos.prototype.zoomOut = function () {
-    this.setZoom(1.1, this.width/2, this.height/2);
+    this.setZoom(1.1, this.width / 2, this.height / 2);
     this.start();
 }
 
@@ -148,12 +148,12 @@ Chaos.prototype.setScale = function () {
     this.scaledCenterX = this.rect.right - (this.scaledWidth / 2);
     this.scaledCenterY = this.rect.top - (this.scaledHeight / 2);
     this.rectDiv.innerText = '';
-    this.rectDiv.innerText = 'top:    ' + (Math.sign(this.rect.top)>0?' ':'') + this.rect.top + '\n' +
-                             'left:   ' + (Math.sign(this.rect.left)>0?' ':'') + this.rect.left + '\n' +
-                             'bottom: ' + (Math.sign(this.rect.bottom)>0?' ':'') + this.rect.bottom + '\n' +
-                             'right:  ' + (Math.sign(this.rect.right)>0?' ':'') +this.rect.right + '\n' +
-                             'width:   ' + this.scaledWidth + '\n' +
-                             'height:  ' + this.scaledHeight + '\n';
+    this.rectDiv.innerText = 'top:    ' + (Math.sign(this.rect.top) > 0 ? ' ' : '') + this.rect.top + '\n' +
+        'left:   ' + (Math.sign(this.rect.left) > 0 ? ' ' : '') + this.rect.left + '\n' +
+        'bottom: ' + (Math.sign(this.rect.bottom) > 0 ? ' ' : '') + this.rect.bottom + '\n' +
+        'right:  ' + (Math.sign(this.rect.right) > 0 ? ' ' : '') + this.rect.right + '\n' +
+        'width:   ' + this.scaledWidth + '\n' +
+        'height:  ' + this.scaledHeight + '\n';
 }
 
 Chaos.prototype.color = function (c) {
@@ -232,6 +232,7 @@ Chaos.prototype.showGradiant = function () {
 Chaos.prototype.run = function () {
     // this.ctx.fillStyle = '#050505';
     // this.ctx.fillRect(0, 0, this.width, this.height);
+    var _this = this;
     this.maxIterations = parseInt(this.iterationDiv.value);
     this.colorShift = parseInt(this.colorShiftDiv.value);
     this.colorOffset = parseInt(this.colorOffsetDiv.value);
@@ -242,34 +243,44 @@ Chaos.prototype.run = function () {
     var zoom = 1;
     var current = 0;
     var total = this.width * this.height;
-    this.req = requestAnimationFrame(compute.bind(this, Px));
+    var screen = [];
+    var maxIteration = 0;
 
-    function compute(Px) {
-        this.speed = this.progessive.checked?this.speed:this.width;
-        for (var col = 0; col < this.speed && Px < this.width; col++) {
-            var x0 = this.scaleX(Px);
+    for (var Px = 0; Px < this.width; Px++) {
+        var x0 = this.scaleX(Px);
+        for (var Py = 0; Py < this.height; Py++) {
+            var y0 = this.scaleY(Py);
+            var x = 0
+            var y = 0
+            var iteration = 0
 
-            for (var Py = 0; Py < this.height; Py++) {
-                var y0 = this.scaleY(Py);
-                var x = 0
-                var y = 0
-                var iteration = 0
-
-                while (x * x + y * y <= escape && iteration < this.maxIterations) {
-                    var xtemp = x * x - y * y + x0;
-                    var y = 2 * x * y + y0;
-                    x = xtemp
-                    iteration = iteration + 1
-                }
-
-                var color = this.color(iteration)
-                if (iteration === this.maxIterations) color = this.color(0);
-                this.plot(Px, Py, color);
+            while (x * x + y * y <= escape && iteration < this.maxIterations) {
+                var xtemp = x * x - y * y + x0;
+                var y = 2 * x * y + y0;
+                x = xtemp
+                iteration = iteration + 1
             }
-            Px++;
+
+            var colorIndex = iteration;
+            maxIteration = iteration>maxIteration?iteration:maxIteration;
+            if (iteration === this.maxIterations) colorIndex = 0;
+            screen[colorIndex] = screen[colorIndex] || [];
+            screen[colorIndex].push({ x: Px, y: Py })
         }
-        if (Px < this.width) this.req = requestAnimationFrame(compute.bind(this, Px));
-        else {
+    }
+    var iteration = 0;
+    this.ctx.fillStyle = 'black';
+    this.ctx.fillRect(0, 0, this.width, this.height);
+    drawColor.bind(this)(iteration)
+    function drawColor(iteration) {
+        if (iteration <= maxIteration) {
+            if (screen[iteration]) {
+                screen[iteration].forEach(function (point) {
+                    _this.plot(point.x, point.y, _this.color(iteration));
+                })
+            }
+            this.req = requestAnimationFrame(drawColor.bind(this, ++iteration))
+        } else {
             this.stop();
         }
     }
