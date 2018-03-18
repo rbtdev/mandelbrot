@@ -1,7 +1,6 @@
 var chaos
 
 function init(canvasId) {
-    debugger
     chaos = new Chaos(canvasId);
 }
 
@@ -223,6 +222,7 @@ Chaos.prototype.showGradiant = function () {
     this.colorSpread = parseInt(this.colorSpreadDiv.value) || 1;
     this.maxIterations = parseInt(this.iterationDiv.value);
     var step = this.maxIterations / this.gradientCanvas.width;
+    this.colors = [];
     for (var i = 0; i<= this.maxIterations; i++) {
         var color = this.color(i);
         this.colors.push(color);
@@ -233,9 +233,8 @@ Chaos.prototype.showGradiant = function () {
         this.gradient.fillRect(x, 0, 1, this.gradientCanvas.height);
     }
 }
+
 Chaos.prototype.run = function () {
-    // this.ctx.fillStyle = '#050505';
-    // this.ctx.fillRect(0, 0, this.width, this.height);
     this.maxIterations = parseInt(this.iterationDiv.value);
     this.colorShift = parseInt(this.colorShiftDiv.value);
     this.colorOffset = parseInt(this.colorOffsetDiv.value);
@@ -244,8 +243,6 @@ Chaos.prototype.run = function () {
     var Px = 0;
     var escape = 4;
     var zoom = 1;
-    var current = 0;
-    var total = this.width * this.height;
     this.req = setTimeout(compute.bind(this, Px), 0);
 
     function compute(Px) {
@@ -258,26 +255,25 @@ Chaos.prototype.run = function () {
                 var y0 = scaledY[Py];
                 var x = 0
                 var y = 0
-                var iteration = 0
                 var x2 = 0;
-                while (x2 + y * y <= escape && iteration < this.maxIterations) {
-                    var xtemp = x2 - y * y + x0;
+                var y2 = 0;
+                var iteration = 0
+                while (x2 + y2 <= escape && iteration < this.maxIterations) {
+                    var xtemp = x2 - y2 + x0;
                     var y = 2 * x * y + y0;
                     x = xtemp
                     iteration = iteration + 1;
                     x2 = x*x;
+                    y2 = y*y;
                 }
-
-                var color = this.color(iteration)
-                if (iteration === this.maxIterations) color = this.color(0);
+                var color = this.colors[iteration]
+                if (iteration === this.maxIterations) color = this.colors[0];
                 this.plot(Px, Py, color);
             }
             Px++;
         }
-        if (Px < this.width) this.req = setTimeout(compute.bind(this, Px), 0);
-        else {
-            this.stop();
-        }
+        if (Px >= this.width) this.stop();
+        else this.req = setTimeout(compute.bind(this, Px), 0);
     }
 }
 
