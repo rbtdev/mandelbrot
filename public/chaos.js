@@ -7,13 +7,13 @@ function init(canvasId) {
 function Chaos(canvasId) {
     this.canvas = document.getElementById(canvasId);
     this.canvas.height = window.innerHeight - 2;
-    this.canvas.width = window.innerWidth-2;
+    this.canvas.width = window.innerWidth - 2;
     this.height = this.canvas.height
     this.width = this.canvas.width
-    this.aspectRatio = this.width/this.height;
+    this.aspectRatio = this.width / this.height;
     this.ctx = canvas.getContext("2d");
     this.ctx.fillStyle = 'black';
-    this.ctx.fillRect(0,0, this.width, this.height);
+    this.ctx.fillRect(0, 0, this.width, this.height);
 
     this.startButton = document.getElementById('start');
     this.rectDiv = document.getElementById('rect');
@@ -23,61 +23,59 @@ function Chaos(canvasId) {
     this.colorSpreadDiv = document.getElementById('color-spread');
     this.speedDiv = document.getElementById('speed');
     this.drag = document.getElementById('drag');
-    this.progessive = document.getElementById('progressive');
+    this.progressive = document.getElementById('progressive');
 
     this.colorSpreadDiv.onkeyup = this.showGradiant.bind(this);
     this.colorOffsetDiv.onkeyup = this.showGradiant.bind(this);
     this.colorShiftDiv.onkeyup = this.showGradiant.bind(this);
     this.iterationDiv.onkeyup = this.showGradiant.bind(this);
+    this.progressive.onclick = this.setSpeed.bind(this);
+
 
     this.gradientCanvas = document.getElementById('gradient');
     this.gradient = this.gradientCanvas.getContext("2d");
 
-    this.pointSize = 1;
-    this.maxColors = Math.pow(2, 24) - 1;
-    this.maxIterations = this.iterationDiv.value;
-    this.canvas.onmousewheel = this.mouseZoom.bind(this);
-    this.colors = [];
-    this.showGradiant();
-    this.speedDiv.value = 20;
-    this.start();
-
-
-    this.scaleX = function (x) {
-        return (x * this.scaledWidth / this.width) + this.rect.left;
-    }.bind(this);
-
-    this.unScaleX = function (x) {
-        return ((x - this.rect.left) / (this.scaledWidth / this.width));
-    }
-
-    this.unScaleY = function (y) {
-        return ((this.rect.top + y) / (this.scaledHeight / this.height));
-    }
-
-    this.scaleY = function (y) {
-        return this.rect.top - (y * this.scaledHeight / this.height);
-    }.bind(this);
-
-    var _this = this;
-    var centerX = -0.5;
-    var width = 3 * this.aspectRatio;
-    var left = centerX - (width/2);
-    var right = centerX + (width/2);
-    var height = 3;
-    this.rect = {
-        top: 1.5,
-        left: left,
-        bottom: -1.5,
-        right: right
-    }
-    this.setScale();
-
-    var _this = this;
     document.getElementById('zoom-in').onclick = this.zoomIn.bind(this);
     document.getElementById('zoom-out').onclick = this.zoomOut.bind(this);
 
+    this.canvas.onmousewheel = this.mouseZoom.bind(this);
 
+    this.maxIterations = this.iterationDiv.value;
+    this.colors = [];
+    this.progressiveValue = 20;
+    this.speedDiv.value = this.progressive.checked?this.progressiveValue:this.width;
+
+    var centerX = -0.5;
+    var centerY = 0;
+    var height = 3;
+    var width = height * this.aspectRatio;
+    var top = centerY + (height/2);
+    var bottom = centerY - (height/2);
+    var left = centerX - (width / 2);
+    var right = centerX + (width / 2);
+    this.rect = {
+        top: top,
+        left: left,
+        bottom: bottom,
+        right: right
+    }
+
+    this.showGradiant();
+    this.setScale();
+    this.start();
+}
+
+Chaos.prototype.scaleX = function (x) {
+    return (x * this.scaledWidth / this.width) + this.rect.left;
+}
+
+Chaos.prototype.scaleY = function (y) {
+    return this.rect.top - (y * this.scaledHeight / this.height);
+}
+
+Chaos.prototype.setSpeed = function () {
+    this.speed = this.progressive.checked?this.progressiveValue: this.width;
+    this.speedDiv.value = this.speed;
 }
 Chaos.prototype.deactivateDragZoom = function () {
     this.canvas.onmousedown = null;
@@ -114,7 +112,7 @@ Chaos.prototype.activateDragZoom = function () {
         document.onmouseup = function (e) {
             document.onmousemove = null;
             var width = Math.abs(_this.scaleX(drag.left) - _this.scaleX(drag.left + drag.width));
-            var height = width/_this.aspectRatio;
+            var height = width / _this.aspectRatio;
             var newRect = {}
             newRect.left = _this.scaleX(drag.left);
             newRect.top = _this.scaleY(drag.top);
@@ -128,17 +126,17 @@ Chaos.prototype.activateDragZoom = function () {
                 _this.setScale();
                 _this.start();
             }
-    
+
         }
     };
 }
 Chaos.prototype.zoomIn = function () {
-    this.setZoom(.9, this.width/2, this.height/2);
+    this.setZoom(.9, this.width / 2, this.height / 2);
     this.start();
 }
 
 Chaos.prototype.zoomOut = function () {
-    this.setZoom(1.1, this.width/2, this.height/2);
+    this.setZoom(1.1, this.width / 2, this.height / 2);
     this.start();
 }
 
@@ -148,12 +146,12 @@ Chaos.prototype.setScale = function () {
     this.scaledCenterX = this.rect.right - (this.scaledWidth / 2);
     this.scaledCenterY = this.rect.top - (this.scaledHeight / 2);
     this.rectDiv.innerText = '';
-    this.rectDiv.innerText = 'top:    ' + (Math.sign(this.rect.top)>0?' ':'') + this.rect.top + '\n' +
-                             'left:   ' + (Math.sign(this.rect.left)>0?' ':'') + this.rect.left + '\n' +
-                             'bottom: ' + (Math.sign(this.rect.bottom)>0?' ':'') + this.rect.bottom + '\n' +
-                             'right:  ' + (Math.sign(this.rect.right)>0?' ':'') +this.rect.right + '\n' +
-                             'width:   ' + this.scaledWidth + '\n' +
-                             'height:  ' + this.scaledHeight + '\n';
+    this.rectDiv.innerText = 'top:    ' + (Math.sign(this.rect.top) > 0 ? ' ' : '') + this.rect.top + '\n' +
+        'left:   ' + (Math.sign(this.rect.left) > 0 ? ' ' : '') + this.rect.left + '\n' +
+        'bottom: ' + (Math.sign(this.rect.bottom) > 0 ? ' ' : '') + this.rect.bottom + '\n' +
+        'right:  ' + (Math.sign(this.rect.right) > 0 ? ' ' : '') + this.rect.right + '\n' +
+        'width:   ' + this.scaledWidth + '\n' +
+        'height:  ' + this.scaledHeight + '\n';
 }
 
 Chaos.prototype.color = function (c) {
@@ -223,7 +221,7 @@ Chaos.prototype.showGradiant = function () {
     this.maxIterations = parseInt(this.iterationDiv.value);
     var step = this.maxIterations / this.gradientCanvas.width;
     this.colors = [];
-    for (var i = 0; i<= this.maxIterations; i++) {
+    for (var i = 0; i <= this.maxIterations; i++) {
         var color = this.color(i);
         this.colors.push(color);
     }
@@ -247,7 +245,6 @@ Chaos.prototype.run = function () {
 
     function compute(Px) {
         var scaledY = [];
-        this.speed = this.progessive.checked?this.speed:this.width;
         for (var col = 0; col < this.speed && Px < this.width; col++) {
             var x0 = this.scaleX(Px);
             for (var Py = 0; Py < this.height; Py++) {
@@ -263,8 +260,8 @@ Chaos.prototype.run = function () {
                     var y = 2 * x * y + y0;
                     x = xtemp
                     iteration = iteration + 1;
-                    x2 = x*x;
-                    y2 = y*y;
+                    x2 = x * x;
+                    y2 = y * y;
                 }
                 var color = this.colors[iteration]
                 if (iteration === this.maxIterations) color = this.colors[0];
