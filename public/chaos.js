@@ -6,14 +6,7 @@ function init(canvasId) {
 
 function Chaos(canvasId) {
     this.canvas = document.getElementById(canvasId);
-    this.canvas.height = window.innerHeight - 2;
-    this.canvas.width = window.innerWidth - 2;
-    this.height = this.canvas.height
-    this.width = this.canvas.width
-    this.aspectRatio = this.width / this.height;
-    this.ctx = canvas.getContext("2d");
-    this.ctx.fillStyle = 'black';
-    this.ctx.fillRect(0, 0, this.width, this.height);
+    this.initCanvas();
 
     this.startButton = document.getElementById('start');
     this.rectDiv = document.getElementById('rect');
@@ -39,6 +32,14 @@ function Chaos(canvasId) {
     document.getElementById('zoom-out').onclick = this.zoomOut.bind(this);
 
     this.canvas.onmousewheel = this.mouseZoom.bind(this);
+    window.onresize = function () {
+        clearTimeout(this.resizeTimeout);
+        this.resizeTimeout = setTimeout(function () {
+            this.initCanvas();
+            this.setScale();
+            this.start();
+        }.bind(this), 100);
+    }.bind(this);
 
     this.maxIterations = this.iterationDiv.value;
     this.colors = [];
@@ -59,12 +60,21 @@ function Chaos(canvasId) {
         bottom: bottom,
         right: right
     }
-
-    this.showGradiant();
     this.setScale();
+    this.showGradiant();
     this.start();
 }
 
+Chaos.prototype.initCanvas = function () {
+    this.canvas.height = window.innerHeight - 2;
+    this.canvas.width = window.innerWidth - 2;
+    this.height = this.canvas.height
+    this.width = this.canvas.width
+    this.aspectRatio = this.width / this.height;
+    this.ctx = canvas.getContext("2d");
+    this.ctx.fillStyle = 'black';
+    this.ctx.fillRect(0, 0, this.width, this.height);
+}
 Chaos.prototype.scaleX = function (x) {
     return (x * this.scaledWidth / this.width) + this.rect.left;
 }
