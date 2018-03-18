@@ -1,11 +1,11 @@
 var chaos
 
 function init(canvasId) {
+    debugger
     chaos = new Chaos(canvasId);
 }
 
 function Chaos(canvasId) {
-
     this.canvas = document.getElementById(canvasId);
     this.canvas.height = window.innerHeight - 2;
     this.canvas.width = window.innerWidth-2;
@@ -38,6 +38,7 @@ function Chaos(canvasId) {
     this.maxColors = Math.pow(2, 24) - 1;
     this.maxIterations = this.iterationDiv.value;
     this.canvas.onmousewheel = this.mouseZoom.bind(this);
+    this.colors = [];
     this.showGradiant();
     this.speedDiv.value = 20;
     this.start();
@@ -166,7 +167,7 @@ Chaos.prototype.color = function (c) {
 }
 
 Chaos.prototype.stop = function () {
-    cancelAnimationFrame(this.req);
+    clearTimeout(this.req);
     this.startButton.textContent = 'Start';
     this.startButton.onclick = this.start.bind(this);
 }
@@ -222,10 +223,13 @@ Chaos.prototype.showGradiant = function () {
     this.colorSpread = parseInt(this.colorSpreadDiv.value) || 1;
     this.maxIterations = parseInt(this.iterationDiv.value);
     var step = this.maxIterations / this.gradientCanvas.width;
+    for (var i = 0; i<= this.maxIterations; i++) {
+        var color = this.color(i);
+        this.colors.push(color);
+    }
     for (var x = 0; x <= this.gradientCanvas.width; x++) {
-        var c = x * step;
-        var color = this.color(c);
-        this.gradient.fillStyle = color;
+        var c = Math.floor(x * step);
+        this.gradient.fillStyle = this.colors[x];
         this.gradient.fillRect(x, 0, 1, this.gradientCanvas.height);
     }
 }
@@ -242,24 +246,26 @@ Chaos.prototype.run = function () {
     var zoom = 1;
     var current = 0;
     var total = this.width * this.height;
-    this.req = requestAnimationFrame(compute.bind(this, Px));
+    this.req = setTimeout(compute.bind(this, Px), 0);
 
     function compute(Px) {
+        var scaledY = [];
         this.speed = this.progessive.checked?this.speed:this.width;
         for (var col = 0; col < this.speed && Px < this.width; col++) {
             var x0 = this.scaleX(Px);
-
             for (var Py = 0; Py < this.height; Py++) {
-                var y0 = this.scaleY(Py);
+                scaledY[Py] = scaledY[Py] || this.scaleY(Py);
+                var y0 = scaledY[Py];
                 var x = 0
                 var y = 0
                 var iteration = 0
-
-                while (x * x + y * y <= escape && iteration < this.maxIterations) {
-                    var xtemp = x * x - y * y + x0;
+                var x2 = 0;
+                while (x2 + y * y <= escape && iteration < this.maxIterations) {
+                    var xtemp = x2 - y * y + x0;
                     var y = 2 * x * y + y0;
                     x = xtemp
-                    iteration = iteration + 1
+                    iteration = iteration + 1;
+                    x2 = x*x;
                 }
 
                 var color = this.color(iteration)
@@ -268,7 +274,7 @@ Chaos.prototype.run = function () {
             }
             Px++;
         }
-        if (Px < this.width) this.req = requestAnimationFrame(compute.bind(this, Px));
+        if (Px < this.width) this.req = setTimeout(compute.bind(this, Px), 0);
         else {
             this.stop();
         }

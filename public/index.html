@@ -1,0 +1,58 @@
+<html>
+
+<head>
+    <script src='./chaos.js'></script>
+    <link rel='stylesheet' href='./chaos.css'>
+</head>
+
+<body onload='init("canvas")'>
+    <div id='drag'></div>
+    <div id='content'>
+        <canvas id='canvas'></canvas>
+        <div id='controls'>
+            <pre id='rect'></pre>
+            <div>
+                <label>Iterations</label>
+                <input id='iterations' placeholder='Max iterations' value='4096'>
+            </div>
+            <div>
+                <div class = 'color-scheme'>
+                        <div>Color Scheme</div>
+                    <div>
+                        <label>Shift</label>
+                        <input id='color-shift' placeholder='Shift' value='16'>
+                    </div>
+                    <div>
+                        <label>Offset</label>
+                        <input id='color-offset' placeholder='Offset' value='0'>
+                    </div>
+                    <div>
+                        <label>Spread</label>
+                        <input id='color-spread' placeholder='Spread' value='8'>
+                    </div>
+                    <canvas id = 'gradient' width = "200" height = "20"></canvas>
+                </div>
+            </div>
+            <div>
+                <label>Progressive</label>
+                <input id = 'progressive' type = 'checkbox' checked>
+            </div>
+            <div>
+                <label>Lines</label>
+                <input id='speed' placeholder='Speed' value='20'>
+            </div>
+            <div id = 'buttons'>
+                <button id='start' onclick='chaos.start()'>Start</button>
+                <div class = 'zoom'>
+                    <button id='zoom-in'>+</button>
+                    <button id='zoom-out'>-</button> 
+                </div>               
+            </div>
+            <div>
+                Click and drag over a region to zoom in
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
